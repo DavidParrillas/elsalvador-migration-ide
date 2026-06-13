@@ -1,0 +1,15 @@
+# Ignore editor and system files
+.DS_Store
+Thumbs.db
+*.log
+
+# Node / dependency artifacts (no package manifest in this repo)
+node_modules/
+
+# Temporary files
+*.tmp
+*.temp
+*~
+
+# Visual Studio Code workspace settings
+.vscode/
