@@ -24,10 +24,9 @@ Este proyecto se creó con QGIS y `qgis2web` para generar un visor web cartográ
 - Navegador web compatible con JavaScript.
 - No se requiere compilación adicional si los archivos ya están generados.
 
-## Notas
+## URL
 
-- El proyecto parece ser una exportación de `qgis2web` para visualización de datos geoespaciales.
-- Si deseas editar el contenido o los estilos, modifica el proyecto QGIS original y vuelve a exportar con `qgis2web`.
+- https://davidparrillas.github.io/elsalvador-migration-ide/
 
 ## Licencia
 
