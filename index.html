@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="es">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <link rel="stylesheet" href="./resources/ol.css">
+        <link rel="stylesheet" href="resources/fontawesome-all.min.css">
+        <link rel="stylesheet" type="text/css" href="resources/horsey.min.css">
+        <link rel="stylesheet" type="text/css" href="resources/ol-search-layer.min.css">
+        <link href="resources/photon-geocoder-autocomplete.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="./resources/ol-layerswitcher.css">
+        <link rel="stylesheet" href="./resources/qgis2web.css">
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+        <title>Migración Interna y Emigración Internacional — El Salvador</title>
+        <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            font-family: 'Inter', sans-serif;
+            background-color: #ffffff;
+        }
+
+        /* Header */
+        #app-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background-color: #1a3a5c;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            height: 52px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        #header-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        #header-badge {
+            background-color: #2d6a9f;
+            color: #b8d9f5;
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            padding: 3px 8px;
+            border-radius: 3px;
+            white-space: nowrap;
+        }
+
+        #header-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #ffffff;
+            line-height: 1.2;
+        }
+
+        #header-subtitle {
+            font-size: 11px;
+            color: #8ab8d8;
+            margin-top: 1px;
+        }
+
+        #header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        #header-meta {
+            text-align: right;
+        }
+
+        #header-meta .meta-label {
+            font-size: 10px;
+            color: #8ab8d8;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        #header-meta .meta-value {
+            font-size: 12px;
+            color: #cce0f0;
+            font-weight: 500;
+        }
+
+        #header-source {
+            border-left: 1px solid #2d6a9f;
+            padding-left: 16px;
+            text-align: right;
+        }
+
+        /* Indicator pills */
+        #indicator-bar {
+            position: fixed;
+            top: 52px;
+            left: 0;
+            right: 0;
+            z-index: 999;
+            background-color: #f0f4f8;
+            border-bottom: 1px solid #d0dce8;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 20px;
+            overflow-x: auto;
+        }
+
+        #indicator-bar::-webkit-scrollbar {
+            height: 0;
+        }
+
+        .indicator-label {
+            font-size: 10px;
+            font-weight: 600;
+            color: #6b8099;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-right: 4px;
+            white-space: nowrap;
+        }
+
+        .indicator-pill {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background-color: #ffffff;
+            border: 1px solid #d0dce8;
+            border-radius: 20px;
+            padding: 4px 10px 4px 8px;
+            font-size: 11px;
+            color: #2c4a62;
+            font-weight: 500;
+            white-space: nowrap;
+            cursor: default;
+        }
+
+        .pill-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .dot-emigracion  { background-color: #a50f15; }
+        .dot-migracion   { background-color: #08519c; }
+        .dot-remesas-si  { background-color: #006d2c; }
+        .dot-remesas-no  { background-color: #d94701; }
+        .dot-depto       { background-color: #756bb1; }
+
+        /* Map wrapper — pushed down below header + bar */
+        #map-wrapper {
+            position: fixed;
+            top: 84px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Popup */
+        #popup {
+            position: absolute;
+        }
+
+        /* OpenLayers control repositioning */
+        .ol-control > * {
+            background-color: #f8f8f8 !important;
+            color: #444444 !important;
+            border-radius: 0px;
+        }
+
+        .ol-attribution a,
+        .gcd-gl-input::placeholder,
+        .search-layer-input-search::placeholder {
+            color: #444444 !important;
+        }
+
+        .search-layer-input-search {
+            background-color: #f8f8f8 !important;
+        }
+
+        .ol-control > *:focus,
+        .ol-control > *:hover {
+            background-color: rgba(248, 248, 248, 0.7) !important;
+        }
+
+        .ol-control {
+            background-color: rgba(255,255,255,.4) !important;
+            padding: 2px !important;
+        }
+
+        /* Responsive: hide subtitle on small screens */
+        @media (max-width: 600px) {
+            #header-subtitle { display: none; }
+            #header-source   { display: none; }
+            #header-badge    { display: none; }
+        }
+        </style>
+    </head>
+    <body>
+
+        <!-- Header -->
+        <header id="app-header">
+            <div id="header-left">
+                <div>
+                    <div id="header-title">Migración Interna y Emigración Internacional en El Salvador</div>
+                    <div id="header-subtitle">Infraestructura de Datos Espaciales y Visualizador WebSIG &nbsp;·&nbsp; BCR — Censo 2024</div>
+                </div>
+            </div>
+            <div id="header-right">
+                <div id="header-meta">
+                    <div class="meta-label">Sistema de referencia</div>
+                    <div class="meta-value">WGS 84 / EPSG:4326</div>
+                </div>
+                <div id="header-source">
+                    <div class="meta-label">Fuente</div>
+                    <div class="meta-value">BCR · Censo 2024</div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Indicator bar -->
+        <div id="indicator-bar">
+            <span class="indicator-label">Capas:</span>
+            <div class="indicator-pill"><span class="pill-dot dot-emigracion"></span>Emigración internacional</div>
+            <div class="indicator-pill"><span class="pill-dot dot-migracion"></span>Migración interna</div>
+            <div class="indicator-pill"><span class="pill-dot dot-remesas-si"></span>Hogares con remesas</div>
+            <div class="indicator-pill"><span class="pill-dot dot-remesas-no"></span>Hogares sin remesas</div>
+            <div class="indicator-pill"><span class="pill-dot dot-depto"></span>Análisis departamental</div>
+        </div>
+
+        <!-- Map -->
+        <div id="map-wrapper">
+            <div id="map">
+                <div id="popup" class="ol-popup">
+                    <a href="#" id="popup-closer" class="ol-popup-closer"></a>
+                    <div id="popup-content"></div>
+                </div>
+            </div>
+        </div>
+
+        <script src="resources/qgis2web_expressions.js"></script>
+        <script src="resources/proj4.js"></script>
+        <script>proj4.defs('EPSG:4326','+proj=longlat +datum=WGS84 +no_defs');</script>
+        <script src="./resources/functions.js"></script>
+        <script src="./resources/ol.js"></script>
+        <script src="resources/horsey.min.js"></script>
+        <script src="resources/ol-search-layer.js"></script>
+        <script src="./resources/ol-layerswitcher.js"></script>
+        <script src="resources/photon-geocoder-autocomplete.min.js"></script>
+        <script src="resources/olms.js"></script>
+        <script src="layers/sv_division_departamentos_2023_1.js"></script>
+        <script src="layers/sv_division_municipios_2023_2.js"></script>
+        <script src="layers/sv_division_distritos_2023_3.js"></script>
+        <script src="layers/v_remesas_no_4.js"></script>
+        <script src="layers/v_remesas_si_5.js"></script>
+        <script src="layers/v_migracion_6.js"></script>
+        <script src="layers/v_emigracion_7.js"></script>
+        <script src="layers/dissolve_emigracion_depto_8.js"></script>
+        <script src="layers/dissolve_migracion_depto_9.js"></script>
+        <script src="layers/interseccion_emigracion_depto_10.js"></script>
+        <script src="layers/centroides_municipios_11.js"></script>
+        <script src="styles/sv_division_departamentos_2023_1_style.js"></script>
+        <script src="styles/sv_division_municipios_2023_2_style.js"></script>
+        <script src="styles/sv_division_distritos_2023_3_style.js"></script>
+        <script src="styles/v_remesas_no_4_style.js"></script>
+        <script src="styles/v_remesas_si_5_style.js"></script>
+        <script src="styles/v_migracion_6_style.js"></script>
+        <script src="styles/v_emigracion_7_style.js"></script>
+        <script src="styles/dissolve_emigracion_depto_8_style.js"></script>
+        <script src="styles/dissolve_migracion_depto_9_style.js"></script>
+        <script src="styles/interseccion_emigracion_depto_10_style.js"></script>
+        <script src="styles/centroides_municipios_11_style.js"></script>
+        <script src="./layers/layers.js" type="text/javascript"></script>
+        <script src="./resources/Autolinker.min.js"></script>
+        <script src="./resources/qgis2web.js"></script>
+    </body>
+</html>
